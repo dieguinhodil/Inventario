@@ -1,0 +1,14 @@
+# Datos del hospital: NUNCA subir al repositorio público
+*.xlsx
+*.xls
+*.csv
+salida/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# macOS
+.DS_Store
