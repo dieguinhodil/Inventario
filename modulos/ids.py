@@ -13,13 +13,43 @@ Agrega a cada equipo:
   en orden de fila_excel. Si un ID está repetido, TODAS sus filas reciben TMP.
 - "formato_distinto" (no cumple config.FORMATO_ID) conserva su ID; solo se marca.
 
-Estado: PENDIENTE — se programa en su propio chat siguiendo arquitectura.md.
+Estado: LISTO — probado con INVENTARIO_JUNIO_2025 (16 TMP: 8 sin ID + 8 repetidos).
 """
+import collections
+import re
+
 import config
+from modulos.limpieza import clave
+
+
+def _motivo(id_equipo, conteo):
+    """Decide el motivo_id de un ID según las reglas del contrato."""
+    if clave(id_equipo) in ("", clave(config.SIN_ID)):
+        return "sin_id"
+    if conteo[clave(id_equipo)] > 1:
+        return "id_repetido"
+    if not re.fullmatch(config.FORMATO_ID, id_equipo):
+        return "formato_distinto"
+    return ""
 
 
 def asignar_ids(equipos):
-    raise NotImplementedError
+    """Devuelve copias de los equipos con id_original, id_final y motivo_id."""
+    conteo = collections.Counter(clave(e["id"]) for e in equipos)
+
+    resultado = []
+    for equipo in equipos:
+        nuevo = dict(equipo)
+        nuevo["id_original"] = equipo["id"]
+        nuevo["id_final"] = equipo["id"]
+        nuevo["motivo_id"] = _motivo(equipo["id"], conteo)
+        resultado.append(nuevo)
+
+    # TMP numerados en orden de fila del Excel, aunque la lista venga en otro orden
+    necesitan_tmp = [e for e in resultado if e["motivo_id"] in ("sin_id", "id_repetido")]
+    for numero, equipo in enumerate(sorted(necesitan_tmp, key=lambda e: e["fila_excel"]), start=1):
+        equipo["id_final"] = f"{config.PREFIJO_TMP}{numero:03d}"
+    return resultado
 
 
 if __name__ == "__main__":
