@@ -1,0 +1,257 @@
+/*
+ * estilos.css — Visor de fichas (docs/visor.js).
+ * Pensado primero para el teléfono (se abre desde la cámara del iPhone).
+ * Sin fuentes externas: solo fuentes del sistema, para no hacer peticiones.
+ */
+
+:root {
+  --rojo: #c8102e;
+  --rojo-suave: #fbe9ec;
+  --fondo: #f4f4f2;
+  --tarjeta: #ffffff;
+  --texto: #1c1c1e;
+  --texto-suave: #6b6b70;
+  --borde: #e2e2e0;
+
+  --ok-fondo: #e3f4e8;   --ok-texto: #1d6b35;
+  --aviso-fondo: #fff3d6; --aviso-texto: #7a5300;
+  --alerta-fondo: #fde4e4; --alerta-texto: #a3121f;
+  --neutro-fondo: #ececee; --neutro-texto: #4a4a4f;
+
+  --radio: 14px;
+  --fuente: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --rojo: #ff4d5e;
+    --rojo-suave: #3a1a1e;
+    --fondo: #111113;
+    --tarjeta: #1c1c1f;
+    --texto: #f2f2f4;
+    --texto-suave: #a0a0a7;
+    --borde: #2e2e33;
+
+    --ok-fondo: #15351f;    --ok-texto: #7fdc9a;
+    --aviso-fondo: #3a2e10; --aviso-texto: #f3c96a;
+    --alerta-fondo: #3d1519; --alerta-texto: #ff8a94;
+    --neutro-fondo: #2a2a2e; --neutro-texto: #c4c4ca;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--fuente);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+#visor {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+/* --- Cabecera ----------------------------------------------------------- */
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 2px 16px;
+}
+
+/* Cruz dibujada solo con CSS (sin imágenes externas) */
+.cabecera__cruz {
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 36px;
+}
+.cabecera__cruz::before,
+.cabecera__cruz::after {
+  content: "";
+  position: absolute;
+  background: var(--rojo);
+  border-radius: 2px;
+}
+.cabecera__cruz::before { left: 12px; top: 0; width: 12px; height: 36px; }
+.cabecera__cruz::after  { left: 0; top: 12px; width: 36px; height: 12px; }
+
+.cabecera__titulo {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+.cabecera__subtitulo {
+  margin: 0;
+  color: var(--texto-suave);
+  font-size: 0.85rem;
+}
+
+/* --- Ficha ---------------------------------------------------------------- */
+
+.ficha {
+  background: var(--tarjeta);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+}
+
+.ficha__cabeza {
+  padding: 20px 20px 18px;
+  border-top: 5px solid var(--rojo);
+  border-bottom: 1px solid var(--borde);
+}
+
+.ficha__rotulo {
+  margin: 0 0 2px;
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ficha__id {
+  margin: 0 0 12px;
+  font-family: var(--mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  overflow-wrap: anywhere;
+}
+
+/* --- Estatus ------------------------------------------------------------- */
+
+.estatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.estatus::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.estatus--ok     { background: var(--ok-fondo);     color: var(--ok-texto); }
+.estatus--aviso  { background: var(--aviso-fondo);  color: var(--aviso-texto); }
+.estatus--alerta { background: var(--alerta-fondo); color: var(--alerta-texto); }
+.estatus--neutro { background: var(--neutro-fondo); color: var(--neutro-texto); }
+
+/* --- Aviso de ID temporal ---------------------------------------------- */
+
+.aviso {
+  margin: 0;
+  padding: 12px 20px;
+  background: var(--aviso-fondo);
+  color: var(--aviso-texto);
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--borde);
+}
+
+/* --- Lista de datos ------------------------------------------------------ */
+
+.datos {
+  margin: 0;
+  padding: 4px 20px;
+}
+
+.dato {
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--borde);
+}
+.dato:last-child { border-bottom: 0; }
+
+.dato__etiqueta {
+  color: var(--texto-suave);
+  font-size: 0.875rem;
+}
+
+.dato__valor {
+  margin: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.dato__valor--mono { font-family: var(--mono); font-size: 0.95rem; }
+.dato__valor--vacio { color: var(--texto-suave); font-weight: 400; font-style: italic; }
+
+/* En pantallas muy angostas, etiqueta arriba y valor abajo */
+@media (max-width: 360px) {
+  .dato { grid-template-columns: 1fr; gap: 2px; }
+}
+
+/* --- Mantenimiento ------------------------------------------------------ */
+
+/* Fondo neutro: el rojo queda reservado para el estatus "no funciona" */
+.mantenimiento {
+  padding: 16px 20px 20px;
+  background: var(--neutro-fondo);
+  border-top: 1px solid var(--borde);
+}
+
+.mantenimiento__titulo {
+  margin: 0 0 4px;
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mantenimiento__fecha {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.mantenimiento__fecha--vacio {
+  color: var(--texto-suave);
+  font-weight: 500;
+  font-style: italic;
+}
+
+/* --- Estado sin datos -------------------------------------------------- */
+
+.ficha--vacia {
+  padding: 28px 20px;
+  border-top: 5px solid var(--rojo);
+  text-align: center;
+}
+.ficha__vacia-titulo { margin: 0 0 8px; font-size: 1.3rem; }
+.ficha__vacia-texto  { margin: 0; color: var(--texto-suave); }
+
+/* --- Pie ---------------------------------------------------------------- */
+
+.pie {
+  margin-top: 16px;
+  padding: 0 4px;
+  color: var(--texto-suave);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
+/* --- Impresión (por si alguien imprime la ficha) ----------------------- */
+
+@media print {
+  body { background: #fff; }
+  .ficha { border-color: #999; }
+  .pie { display: none; }
+}

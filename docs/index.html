@@ -1,3 +1,24 @@
-   <!doctype html>
-   <html lang="es"><meta charset="utf-8"><title>Inventario</title>
-   <h1>Visor de inventario (en construcción)</h1></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <!-- El navegador bloquea cualquier petición fuera de este sitio: los datos del QR no salen del teléfono -->
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#f4f4f2" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#111113" media="(prefers-color-scheme: dark)">
+  <title>Inventario · Cruz Roja Guadalajara</title>
+  <link rel="stylesheet" href="estilos.css">
+  <script src="visor.js" defer></script>
+</head>
+<body>
+  <main id="visor">
+    <noscript>
+      <p>Para ver la ficha del equipo, activa JavaScript en el navegador.</p>
+    </noscript>
+  </main>
+</body>
+</html>
