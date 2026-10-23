@@ -46,7 +46,7 @@ def guardar_csv(ruta, filas):
         return
     os.makedirs(os.path.dirname(ruta), exist_ok=True)
     claves = list(filas[0].keys())
-    with open(ruta, "w", newline="", encoding="utf-8") as fh:
+    with open(ruta, "w", newline="", encoding="utf-8-sig") as fh:
         escritor = csv.DictWriter(fh, fieldnames=claves, extrasaction="ignore")
         escritor.writeheader()
         escritor.writerows(filas)
