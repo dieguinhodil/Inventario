@@ -20,8 +20,8 @@
   var CAMPOS_QR = ["id", "tipo", "marca", "modelo", "serie", "area", "estatus", "ultimo_mprev"];
 
   // Texto fijo (no viaja en el QR)
-  var CUENTA = "Cruz Roja Mexicana";
-  var UBICACION = "Delegación Guadalajara";
+  var CUENTA = "Delegación Guadalajara";
+  var UBICACION = "Cruz Roja Mexicana";
 
   var PREFIJO_TMP = "TMP-";          // config.PREFIJO_TMP
   var SIN_REGISTRO = "Sin registro"; // para ultimo_mprev vacío
