@@ -20,8 +20,9 @@
   var CAMPOS_QR = ["id", "tipo", "marca", "modelo", "serie", "area", "estatus", "ultimo_mprev"];
 
   // Texto fijo (no viaja en el QR)
-  var CUENTA = "Delegación Guadalajara";
-  var UBICACION = "Cruz Roja Mexicana";
+  var ORGANIZACION = "Cruz Roja Mexicana";   // título de la cabecera
+  var CUENTA = "Cruz Roja Mexicana";
+  var UBICACION = "Delegación Guadalajara";
 
   var PREFIJO_TMP = "TMP-";          // config.PREFIJO_TMP
   var SIN_REGISTRO = "Sin registro"; // para ultimo_mprev vacío
@@ -131,7 +132,7 @@
     var cruz = el("span", "cabecera__cruz");
     cruz.setAttribute("aria-hidden", "true");
     var textos = el("div", "cabecera__textos");
-    textos.appendChild(el("p", "cabecera__titulo", UBICACION));
+    textos.appendChild(el("p", "cabecera__titulo", ORGANIZACION));
     textos.appendChild(el("p", "cabecera__subtitulo", "Inventario de equipo biomédico"));
     cab.appendChild(cruz);
     cab.appendChild(textos);
@@ -215,7 +216,7 @@
     raiz.appendChild(hayDatos ? fichaEquipo(datos) : fichaVacia());
     raiz.appendChild(pie());
 
-    document.title = hayDatos && datos.id ? datos.id + " · Inventario" : "Inventario · " + UBICACION;
+    document.title = hayDatos && datos.id ? datos.id + " · Inventario" : "Inventario · " + ORGANIZACION;
   }
 
   window.addEventListener("hashchange", mostrar);

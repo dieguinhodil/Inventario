@@ -171,7 +171,7 @@ Hoja carta, rejilla 4 × 5 = 20 etiquetas por hoja (~15 hojas). Líneas de corte
 
 ### `docs/` (visor)
 - Lee `location.hash`, decodifica los campos (`decodeURIComponent`) y los muestra como ficha.
-- Muestra Cuenta ("Cruz Roja Mexicana") y Ubicación ("Cruz Roja Guadalajara") como texto fijo.
+- Cabecera: "Cruz Roja Mexicana". Muestra Cuenta ("Cruz Roja Mexicana") y Ubicación ("Delegación Guadalajara") como texto fijo.
 - **Campos vacíos:** si falta `ultimo_mprev` → "Sin registro"; cualquier otro campo ausente o vacío → "Sin dato".
   Los valores que significan "sin dato" en el Excel (`S/D`, `N/A`, `-`) también se muestran como "Sin dato" (solo en el visor; el enlace los lleva tal cual).
 - **Color del estatus:**
