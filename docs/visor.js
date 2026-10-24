@@ -21,7 +21,7 @@
 
   // Texto fijo (no viaja en el QR)
   var CUENTA = "Cruz Roja Mexicana";
-  var UBICACION = "Cruz Roja Mexicana, Delegación Guadalajara";
+  var UBICACION = "Delegación Guadalajara";
 
   var PREFIJO_TMP = "TMP-";          // config.PREFIJO_TMP
   var SIN_REGISTRO = "Sin registro"; // para ultimo_mprev vacío
