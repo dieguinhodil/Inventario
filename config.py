@@ -36,6 +36,7 @@ CAMPOS_QR = ["id", "tipo", "marca", "modelo", "serie", "area", "estatus", "ultim
 
 # --- Etiquetas --------------------------------------------------------------
 TAM_ETIQUETA_CM = 5
+TAM_QR_CM = 4.2           # lado del QR impreso dentro de la etiqueta (lo usan generador_qr y pdf_etiquetas)
 CORRECCION_QR = "M"
 
 # --- Normalización (la llena el chat de limpieza) ---------------------------
