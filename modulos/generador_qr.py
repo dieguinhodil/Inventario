@@ -12,7 +12,7 @@ Detalles de esta implementación:
 - La versión del QR (tamaño de la cuadrícula) se elige sola según el largo del enlace.
   Con INVENTARIO_JUNIO_2025 salen versiones 8 a 12 (49 a 65 módulos por lado).
 - Cada módulo mide TAM_MODULO_PX píxeles: el PNG más grande queda en 650 × 650 px,
-  unos 390 ppp al imprimirlo a ~4.2 cm. Suficiente para impresión nítida.
+  unos 445 ppp al imprimirlo a 3.7 cm (config.TAM_QR_CM). Suficiente para impresión nítida.
 - Imagen en blanco y negro puro (1 bit): bordes exactos y archivos de ~1–2 KB.
 - Si el enlace crece tanto que el módulo impreso quedaría por debajo de MODULO_MIN_MM,
   avisa con un warning (no detiene el programa). Útil cuando se capturen las fechas

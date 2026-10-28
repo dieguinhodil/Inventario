@@ -4,9 +4,10 @@
 > Este chat programa SOLO el módulo que se indique, respetando los contratos de abajo.
 > Si un contrato necesita cambiar, se cambia primero en el chat de arquitectura (el del `main.py`) y se actualiza este documento.
 >
-> **Documento vigente:** `Inventario/arquitectura.md`. Si existe `claude/arquitectura.md`, es una versión vieja (16-oct) y no debe usarse.
+> Este es el **único** documento de arquitectura del proyecto. En el proyecto de Claude vive como `arquitectura.md`;
+> en el repositorio de GitHub va en `Inventario/arquitectura.md`. El único `config.py` es `Inventario/config.py`.
 
-Última actualización: 2026-10-23
+Última actualización: 2026-10-28
 
 ---
 
@@ -66,7 +67,6 @@ Más adelante: ficha técnica completa en una página web (fuera del alcance de 
       `generador_qr.py` (solo afecta el aviso de tamaño mínimo); lo ideal es moverlo a `config.py` para que ambos módulos usen el mismo valor.
 - [ ] **Fechas de último MPrev:** hoy 147 de 293 equipos incluidos tienen fecha. La jefa de servicio tiene fechas más recientes de casi todos; se capturarán manualmente en la columna K del Excel más adelante. Si no hay fecha, el campo se omite del enlace y el visor muestra "Sin registro".
 - [ ] Antes de imprimir: regenerar QR después de capturar las fechas nuevas (el QR guarda los datos del momento en que se genera). Los enlaces crecerán; `generador_qr` avisa si algún módulo queda por debajo de 0.5 mm.
-- [ ] Borrar `claude/arquitectura.md` (versión vieja duplicada) para que ningún chat la lea por error.
 
 ## 4. Datos de origen
 
@@ -263,7 +263,7 @@ CSV_REVISION, CSV_EXCLUIDOS = "salida/revision_qr.csv", "salida/excluidos.csv"
 PDF_ETIQUETAS = "salida/etiquetas.pdf"
 ```
 
-La versión completa y vigente es `Inventario/config.py`.
+La versión completa y vigente es `Inventario/config.py` (único `config.py` del proyecto).
 Las constantes de Cuenta y Ubicación del visor viven en `docs/visor.js`, no en `config.py`.
 
 ## 9. Reglas para todos los chats
@@ -273,6 +273,7 @@ Las constantes de Cuenta y Ubicación del visor viven en `docs/visor.js`, no en 
 - Nombres de funciones y variables en español, sin acentos.
 - Cada módulo se puede probar solo con su bloque `if __name__ == "__main__":`.
 - Cada chat parte del archivo del módulo en el proyecto (`Inventario/modulos/...`).
+- Hay un solo `arquitectura.md` y un solo `config.py`. No crear copias en otras carpetas del proyecto.
 - Si un chat toma una decisión que afecta a otros módulos o al visor, avisa al usuario para anotarla aquí.
 - Respuestas en español, paso a paso. Si no se hizo una acción o se omitió información, decirlo.
 
