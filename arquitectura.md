@@ -5,7 +5,11 @@
 > Si un contrato necesita cambiar, se cambia primero en el chat de arquitectura (el del `main.py`) y se actualiza este documento.
 >
 > Este es el **único** documento de arquitectura del proyecto. En el proyecto de Claude vive como `arquitectura.md`;
-> en el repositorio de GitHub va en `Inventario/arquitectura.md`. El único `config.py` es `Inventario/config.py`.
+> en el repositorio de GitHub va en `Inventario/arquitectura.md`.
+>
+> **El código NO está en el proyecto de Claude.** La única versión vive en la computadora del usuario (VS Code) y en GitHub.
+> Si necesitas un archivo (`config.py`, un módulo, `visor.js`…), **pídeselo al usuario**; no asumas su contenido
+> ni lo reconstruyas de memoria. Lo que describe este documento es el contrato; el archivo que te dé el usuario manda.
 
 Última actualización: 2026-10-28
 
@@ -24,7 +28,7 @@
 | `modulos/ids.py` | ✅ Listo — 16 TMP (8 sin ID + 8 repetidos) |
 | `modulos/enlaces.py` | ✅ Listo — 293 enlaces, el más largo 279 caracteres |
 | `modulos/generador_qr.py` | ✅ Listo — 293 QR, todos se leen de vuelta con su enlace exacto |
-| `modulos/pdf_etiquetas.py` | ⏳ **Pendiente** (último módulo). Ver instrucciones en la sección 7 |
+| `modulos/pdf_etiquetas.py` | ✅ Listo — 293 etiquetas en 15 hojas carta; los 293 QR se leen de vuelta del PDF con su enlace exacto |
 | `docs/` (visor) | ✅ Listo — probado en Chromium y WebKit (Safari/iPhone), modo claro y oscuro |
 
 ## 1. Objetivo
@@ -42,7 +46,7 @@ Más adelante: ficha técnica completa en una página web (fuera del alcance de 
 |---|---|
 | Datos en el QR | ID, tipo, marca, modelo, no. serie, área, estatus, **último mantenimiento preventivo** |
 | Formato del enlace | Claves completas y valores sin abreviar: `#id=...&tipo=...&marca=...&modelo=...&serie=...&area=...&estatus=...&ultimo_mprev=AAAA-MM-DD` |
-| Tamaño de etiqueta | **5×5 cm**: QR + ID en texto debajo. Lado del QR ~4.2 cm (**ver pendiente de espacio vertical, sección 3**) |
+| Tamaño de etiqueta | **5×5 cm**: QR de **3.7 cm** + ID en texto debajo (márgenes de 3.5 mm; ver sección 3) |
 | Equipos excluidos | Solo estatus **Baja** (23). Fuera de Servicio y demás sí llevan QR |
 | IDs "Sin información" y repetidos | Se marcan como temporales `TMP-001`, `TMP-002`… en orden de fila del Excel |
 | Repetidos | Si un ID aparece 2+ veces entre los incluidos, **todas** sus filas reciben TMP |
@@ -60,11 +64,10 @@ Más adelante: ficha técnica completa en una página web (fuera del alcance de 
 
 ## 3. Pendientes conocidos
 
-- [ ] **Espacio vertical de la etiqueta (decidir en el chat de `pdf_etiquetas`):** con QR de 4.2 cm no caben en 5 cm
-      el margen de 3 mm arriba + QR 42 mm + 3 mm de separación + texto del ID (~2.5 mm) + margen abajo (≈ 53 mm).
-      Opción sugerida: **QR de 3.8 cm** (3 + 38 + 3 + 2.5 + 3 ≈ 49.5 mm). El módulo más pequeño queda en
-      38 / 65 ≈ 0.58 mm, todavía arriba del mínimo de 0.5 mm. Si se cambia, actualizar `TAM_QR_CM` en
-      `generador_qr.py` (solo afecta el aviso de tamaño mínimo); lo ideal es moverlo a `config.py` para que ambos módulos usen el mismo valor.
+- [x] **Espacio vertical de la etiqueta (decidido 2026-10-28):** QR de **3.7 cm** con márgenes de 3.5 mm
+      (3.5 + 37 + 3.5 + texto 2.5 + ~3.5 = 50 mm). Con 3.5 mm todas las versiones de QR tienen al menos
+      4 módulos de zona blanca (versión 8: 4 × 0.76 = 3.0 mm) y queda tolerancia al recortar a mano.
+      Módulo más pequeño: 37 / 65 ≈ 0.57 mm (> 0.5 mm). `TAM_QR_CM = 3.7` vive en `config.py`.
 - [ ] **Fechas de último MPrev:** hoy 147 de 293 equipos incluidos tienen fecha. La jefa de servicio tiene fechas más recientes de casi todos; se capturarán manualmente en la columna K del Excel más adelante. Si no hay fecha, el campo se omite del enlace y el visor muestra "Sin registro".
 - [ ] Antes de imprimir: regenerar QR después de capturar las fechas nuevas (el QR guarda los datos del momento en que se genera). Los enlaces crecerán; `generador_qr` avisa si algún módulo queda por debajo de 0.5 mm.
 
@@ -183,26 +186,29 @@ def info_qr(enlace: str) -> dict       # versión, módulos, tamaño de módulo 
 ```
 - Librería `qrcode`, corrección de errores `config.CORRECCION_QR` ("M"), `border=0` (el margen lo pone el PDF).
 - Versión del QR automática según el largo del enlace (hoy 8 a 12).
-- `TAM_MODULO_PX = 10` → PNG de **490 a 650 px** por lado (~390 ppp impreso a 4.2 cm).
+- `TAM_MODULO_PX = 10` → PNG de **490 a 650 px** por lado (~445 ppp impreso a 3.7 cm).
 - PNG en blanco y negro puro (1 bit), ~1–2 KB.
 - Avisa con un warning (sin detenerse) si el módulo impreso quedaría por debajo de `MODULO_MIN_MM = 0.5`,
-  calculado con `TAM_QR_CM = 4.2`. **Si el PDF usa otro lado de QR, actualizar `TAM_QR_CM`.**
+  calculado con `config.TAM_QR_CM` (3.7). `pdf_etiquetas` no repite este aviso.
 - Crea la carpeta de salida si no existe. Guarda PNG y devuelve la ruta.
 
-### `pdf_etiquetas.py` ⏳
+### `pdf_etiquetas.py` ✅
 ```python
 def armar_pdf(equipos: list[dict], ruta_pdf: str, tam_cm=config.TAM_ETIQUETA_CM) -> str
 ```
 Cada equipo trae `ruta_qr` e `id_final`. Etiqueta 5×5 cm: QR + `id_final` en texto debajo.
-Hoja carta, rejilla 4 × 5 = 20 etiquetas por hoja (~15 hojas). Líneas de corte tenues. Librería `reportlab`.
+Hoja carta, rejilla 4 × 5 = 20 etiquetas por hoja (293 etiquetas → 15 hojas). Líneas de corte tenues. Librería `reportlab`.
+- Lado del QR = `config.TAM_QR_CM`. Si no cabe en la etiqueta, se detiene con un error claro.
+- Etiquetas en el orden del Excel; la última hoja no lleva cuadros vacíos.
+- Pie de hoja: hoja N de M, rango de etiquetas, fecha y "imprimir a tamaño real (100 %)".
+  El PDF pide imprimir sin escalar (`PrintScaling = None`).
 
-**Instrucciones del chat de `generador_qr` (obligatorias):**
-- Los PNG **no traen margen** y su tamaño en píxeles **varía (490 a 650 px)**. El PDF debe dibujarlos
-  **siempre a un lado fijo** (~4.2 cm, o el valor que se decida) usando `drawImage(..., width=, height=)`,
+**Instrucciones del chat de `generador_qr` (cumplidas):**
+- Los PNG **no traen margen** y su tamaño en píxeles **varía (490 a 650 px)**. El PDF los dibuja
+  **siempre a un lado fijo** (`config.TAM_QR_CM` = 3.7 cm) usando `drawImage(..., width=, height=)`,
   nunca a su tamaño natural.
-- El **margen blanco alrededor del QR debe ser de al menos ~3 mm (4 módulos)** por los cuatro lados,
-  **incluido el espacio entre el QR y el texto del ID**. Sin ese margen la cámara puede no reconocerlo.
-- Revisar el pendiente de espacio vertical (sección 3) antes de fijar el lado del QR.
+- El **margen blanco alrededor del QR es de 3.5 mm** (al menos 4 módulos en todas las versiones) por los cuatro lados,
+  **incluido el espacio entre el QR y el texto del ID**.
 
 ### `docs/` (visor) ✅
 - Lee `location.hash`, decodifica los campos (`decodeURIComponent`) y los muestra como ficha.
@@ -245,6 +251,7 @@ PREFIJO_TMP = "TMP-"
 BASE_URL = "https://dieguinhodil.github.io/Inventario/"
 CAMPOS_QR = ["id","tipo","marca","modelo","serie","area","estatus","ultimo_mprev"]
 TAM_ETIQUETA_CM = 5
+TAM_QR_CM = 3.7
 CORRECCION_QR = "M"
 NORMALIZAR_MARCAS = {   # variante -> forma oficial
     "Hergom Medical": "HERGOM",
@@ -263,18 +270,21 @@ CSV_REVISION, CSV_EXCLUIDOS = "salida/revision_qr.csv", "salida/excluidos.csv"
 PDF_ETIQUETAS = "salida/etiquetas.pdf"
 ```
 
-La versión completa y vigente es `Inventario/config.py` (único `config.py` del proyecto).
+La versión completa y vigente de `config.py` la tiene el usuario (pídesela si la necesitas).
 Las constantes de Cuenta y Ubicación del visor viven en `docs/visor.js`, no en `config.py`.
 
 ## 9. Reglas para todos los chats
 
 - Python 3.10+. Dependencias: `openpyxl`, `qrcode[pil]`, `reportlab`.
-  Opcional solo para pruebas: `zxing-cpp` (lee de vuelta los QR en la prueba de `generador_qr.py`).
+  Opcional solo para pruebas: `zxing-cpp` (lee de vuelta los QR) y `pypdfium2` (convierte el PDF en imagen
+  en la prueba de `pdf_etiquetas.py`).
 - Nombres de funciones y variables en español, sin acentos.
 - Cada módulo se puede probar solo con su bloque `if __name__ == "__main__":`.
-- Cada chat parte del archivo del módulo en el proyecto (`Inventario/modulos/...`).
-- Hay un solo `arquitectura.md` y un solo `config.py`. No crear copias en otras carpetas del proyecto.
+- Cada chat parte del archivo que le dé el usuario (su versión local). No hay copias del código en el proyecto de Claude.
+- En el proyecto de Claude solo vive `arquitectura.md` (más el Excel). No subir código al proyecto: el usuario es quien reparte los archivos.
 - Si un chat toma una decisión que afecta a otros módulos o al visor, avisa al usuario para anotarla aquí.
+- Al auditar un módulo, también se buscan líneas que no cambian nada (código muerto o repetido),
+  se eliminan y se anota cada una en el chat.
 - Respuestas en español, paso a paso. Si no se hizo una acción o se omitió información, decirlo.
 
 ## 10. Orden de chats
@@ -284,4 +294,4 @@ Las constantes de Cuenta y Ubicación del visor viven en `docs/visor.js`, no en 
 3. ✅ `limpieza.py`
 4. ✅ `filtros.py` + `ids.py`
 5. ✅ `enlaces.py` + `docs/visor.js` + `docs/estilos.css`
-6. ✅ `generador_qr.py` · ⏳ `pdf_etiquetas.py` (siguiente)
+6. ✅ `generador_qr.py` + `pdf_etiquetas.py`
