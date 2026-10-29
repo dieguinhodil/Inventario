@@ -1,4 +1,5 @@
-# Datos del hospital: NUNCA subir al repositorio público
+# Datos del hospital y secretos: NUNCA subir al repositorio público
+instancia/
 *.xlsx
 *.xls
 *.csv
@@ -7,6 +8,8 @@ salida/
 # Python
 __pycache__/
 *.pyc
+*.db
+.vscode
 .venv/
 venv/
 

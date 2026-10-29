@@ -1,10 +1,55 @@
 """
-Constantes compartidas por todos los módulos.
+config.py — Constantes compartidas de la app de inventario (versión 2).
+
 Cualquier cambio aquí se acuerda en el chat de arquitectura y se anota en arquitectura.md.
+Aquí NO van secretos: la clave secreta y la base de datos viven en instancia/ (fuera de git).
 """
 
-# --- Origen de datos -------------------------------------------------------
-RUTA_EXCEL = "INVENTARIO_JUNIO_2025.xlsx"   # se puede cambiar con --excel
+import os
+from pathlib import Path
+
+# --- Rutas --------------------------------------------------------------------
+# Todas las rutas se calculan a partir de la carpeta de este archivo, para que funcionen
+# igual en la laptop (flask run) y en PythonAnywhere (donde la carpeta de trabajo es otra).
+CARPETA_BASE = Path(__file__).resolve().parent
+CARPETA_INSTANCIA = CARPETA_BASE / "instancia"              # NUNCA se sube a git
+RUTA_DB = CARPETA_INSTANCIA / "inventario.db"
+RUTA_CLAVE_SECRETA = CARPETA_INSTANCIA / "clave_secreta.txt"  # se genera una vez; nunca en el código
+
+# --- Servidor -------------------------------------------------------------------
+# Pendiente: nombre de usuario institucional de PythonAnywhere (máximo 24 caracteres,
+# para que el QR siga siendo versión 4). Al cambiarlo, los QR ya impresos dejan de funcionar.
+BASE_URL = "https://<usuario>.pythonanywhere.com"
+RUTA_FICHA = "/e/"                     # dirección pública de la ficha: BASE_URL + RUTA_FICHA + codigo
+
+# True solo en PythonAnywhere (se define la variable de entorno INVENTARIO_PRODUCCION=1 en su
+# archivo WSGI). Activa la cookie de sesión "Secure", que en la laptop (sin HTTPS) impediría entrar.
+ES_PRODUCCION = os.environ.get("INVENTARIO_PRODUCCION") == "1"
+
+# --- Código aleatorio del QR ---------------------------------------------------------
+LARGO_CODIGO = 8
+ALFABETO_CODIGO = "23456789abcdefghjkmnpqrstuvwxyz"   # sin 0, o, 1, l, i (se confunden al leerlos)
+
+# --- Inicio de sesión ------------------------------------------------------------------
+MAX_INTENTOS = 5          # intentos fallidos de inicio de sesión...
+MINUTOS_BLOQUEO = 15      # ...en esta ventana → bloqueo durante este tiempo
+
+# --- Catálogos ---------------------------------------------------------------------------
+ESTATUS = ["Funcional", "En Revisión", "En Mantenimiento", "Fuera de Servicio", "No Funcional", "Baja"]
+ESTATUS_EXCLUIDOS = ["baja"]      # en minúsculas: sin TMP al importar, sin QR y ocultos en la búsqueda
+TIPOS_MANTENIMIENTO = ["preventivo", "correctivo"]
+
+# --- Texto fijo de la ficha ------------------------------------------------------------------
+CUENTA_FIJA = "Cruz Roja Mexicana"
+UBICACION_FIJA = "Delegación Guadalajara"
+
+# --- Etiquetas y QR -------------------------------------------------------------------------
+TAM_ETIQUETA_CM = 3       # antes 5
+TAM_QR_CM = 2.1           # antes 3.7; el valor exacto se fija en el chat de etiquetas
+CORRECCION_QR = "M"
+
+# --- Importación del Excel (versión 1, la usa importar_excel.py) ---------------------------
+RUTA_EXCEL = CARPETA_BASE / "INVENTARIO_JUNIO_2025.xlsx"   # se puede cambiar con --excel
 HOJA = "GUADALAJARA"
 PRIMERA_FILA = 5          # encabezados en la fila 4
 COL_INI, COL_FIN = 2, 11  # columnas B..K
@@ -23,23 +68,12 @@ COLUMNAS = [
     "ultimo_mprev",  # K  Último Mantenimiento Preventivo
 ]
 
-# --- Reglas -----------------------------------------------------------------
 SIN_ID = "Sin información"
-ESTATUS_EXCLUIDOS = ["baja"]                  # en minúsculas
 FORMATO_ID = r"^CRM GDL \d{2} \d{2} \d{2}$"
 PREFIJO_TMP = "TMP-"
+DESCRIPCION_MPREV_IMPORTADO = "Importado del inventario de junio 2025"
 
-# --- Enlace del QR ----------------------------------------------------------
-BASE_URL = "https://dieguinhodil.github.io/Inventario/"
-# Orden y nombre de las claves después del '#'. Debe coincidir con docs/visor.js
-CAMPOS_QR = ["id", "tipo", "marca", "modelo", "serie", "area", "estatus", "ultimo_mprev"]
-
-# --- Etiquetas --------------------------------------------------------------
-TAM_ETIQUETA_CM = 5
-TAM_QR_CM = 3.7           # lado del QR impreso dentro de la etiqueta (lo usan generador_qr y pdf_etiquetas)
-CORRECCION_QR = "M"
-
-# --- Normalización (la llena el chat de limpieza) ---------------------------
+# --- Normalización ----------------------------------------------------------------------------
 # variante -> forma oficial. La comparación ignora mayúsculas, acentos y espacios extra.
 NORMALIZAR_MARCAS = {
     "Hergom Medical": "HERGOM",
@@ -53,10 +87,3 @@ NORMALIZAR_MARCAS = {
 NORMALIZAR_TIPOS = {
     "Maquina de anestesia": "Máquina de Anestesia",
 }
-
-# --- Salidas ----------------------------------------------------------------
-CARPETA_SALIDA = "salida"
-CARPETA_QR = "salida/qr"
-CSV_REVISION = "salida/revision_qr.csv"
-CSV_EXCLUIDOS = "salida/excluidos.csv"
-PDF_ETIQUETAS = "salida/etiquetas.pdf"
