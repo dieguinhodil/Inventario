@@ -7,6 +7,7 @@ Aquí NO van secretos: la clave secreta y la base de datos viven en instancia/ (
 
 import os
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 # --- Rutas --------------------------------------------------------------------
 # Todas las rutas se calculan a partir de la carpeta de este archivo, para que funcionen
@@ -17,14 +18,19 @@ RUTA_DB = CARPETA_INSTANCIA / "inventario.db"
 RUTA_CLAVE_SECRETA = CARPETA_INSTANCIA / "clave_secreta.txt"  # se genera una vez; nunca en el código
 
 # --- Servidor -------------------------------------------------------------------
-# Pendiente: nombre de usuario institucional de PythonAnywhere (máximo 24 caracteres,
-# para que el QR siga siendo versión 4). Al cambiarlo, los QR ya impresos dejan de funcionar.
-BASE_URL = "https://<usuario>.pythonanywhere.com"
+# Cuenta de PythonAnywhere de la Jefatura de Biomédica: usuario "Bi0medic4CRM" (con cero y cuatro).
+# PythonAnywhere usa el subdominio en minúsculas. NO cambiar: los QR impresos llevan esta dirección.
+BASE_URL = "https://bi0medic4crm.pythonanywhere.com"
 RUTA_FICHA = "/e/"                     # dirección pública de la ficha: BASE_URL + RUTA_FICHA + codigo
 
 # True solo en PythonAnywhere (se define la variable de entorno INVENTARIO_PRODUCCION=1 en su
 # archivo WSGI). Activa la cookie de sesión "Secure", que en la laptop (sin HTTPS) impediría entrar.
 ES_PRODUCCION = os.environ.get("INVENTARIO_PRODUCCION") == "1"
+
+# --- Zona horaria ----------------------------------------------------------------
+# PythonAnywhere trabaja en UTC: todas las fechas y horas se guardan y muestran en hora de
+# Ciudad de México, con su desfase (ej. 2026-10-29T16:45:00-06:00). En Windows requiere `pip install tzdata`.
+ZONA_HORARIA = ZoneInfo("America/Mexico_City")
 
 # --- Código aleatorio del QR ---------------------------------------------------------
 LARGO_CODIGO = 8
