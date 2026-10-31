@@ -37,7 +37,8 @@ LARGO_CODIGO = 8
 ALFABETO_CODIGO = "23456789abcdefghjkmnpqrstuvwxyz"   # sin 0, o, 1, l, i (se confunden al leerlos)
 
 # --- Inicio de sesión ------------------------------------------------------------------
-MAX_INTENTOS = 5          # intentos fallidos de inicio de sesión...
+MAX_INTENTOS = 5          # intentos fallidos de un mismo USUARIO...
+MAX_INTENTOS_IP = 20      # intentos fallidos desde una misma IP (más alto: en el hospital varios usuarios comparten IP)
 MINUTOS_BLOQUEO = 15      # ...en esta ventana → bloqueo durante este tiempo
 
 # --- Catálogos ---------------------------------------------------------------------------
