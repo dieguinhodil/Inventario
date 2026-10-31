@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#b5121b">
+  <title>{% block titulo %}Inventario{% endblock %} · Cruz Roja Guadalajara</title>
+  <link rel="icon" href="data:,">  {# sin ícono por ahora: evita que cada visita pida /favicon.ico (404) #}
+  <script src="{{ url_for('static', filename='tema.js') }}"></script>  {# sin defer: pone el tema antes de dibujar #}
+  <link rel="stylesheet" href="{{ url_for('static', filename='estilos.css') }}">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="contenedor cabecera-interior">
+      <div class="cabecera-marca">
+        <span class="cabecera-cruz" aria-hidden="true"></span>
+        <div class="cabecera-textos">
+          <p class="cabecera-institucion">Cruz Roja Mexicana</p>
+          <p class="cabecera-sistema">Inventario de equipo biomédico</p>
+        </div>
+      </div>
+      <div class="cabecera-acciones">
+        {% if hay_sesion %}
+        <nav class="cabecera-nav" aria-label="Navegación principal">
+          <a href="{{ url_for('buscar') }}">Buscar</a>
+          {# El chat 4 agrega aquí "Nuevo equipo", "Respaldo" y el botón "Salir" (POST con csrf_token()). #}
+        </nav>
+        {% endif %}
+        <button type="button" id="interruptor-tema" class="interruptor-tema" role="switch"
+                aria-checked="false" aria-label="Modo oscuro" title="Modo claro / oscuro" hidden>
+          <span class="interruptor-perilla"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  {% if sesion_provisional %}
+  <div class="aviso-desarrollo" role="note">
+    <div class="contenedor">
+      Modo de desarrollo: todavía no hay inicio de sesión. No publicar así.
+    </div>
+  </div>
+  {% endif %}
+
+  <main class="contenedor contenido">
+    {% block contenido %}{% endblock %}
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">
+      {{ CUENTA_FIJA }} · {{ UBICACION_FIJA }}
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,16 @@
+{# Piezas que se repiten en varias plantillas. Uso: {% import "macros.html" as m %} #}
+
+{# Etiqueta de color del estatus. #}
+{% macro estatus(valor) -%}
+  <span class="estatus estatus-{{ valor | clase_estatus }}">{{ valor | sin_dato }}</span>
+{%- endmacro %}
+
+{# Nombre corto de un equipo: "Monitor Mindray PM-7000". #}
+{% macro nombre_equipo(e) -%}
+  {{ e.tipo | sin_dato }}{% if e.marca %} {{ e.marca }}{% endif %}{% if e.modelo %} {{ e.modelo }}{% endif %}
+{%- endmacro %}
+
+{# ID interno con su aviso si es temporal. #}
+{% macro id_interno(valor) -%}
+  {{ valor | sin_dato }}{% if valor is tmp %} <span class="insignia insignia-tmp">ID temporal</span>{% endif %}
+{%- endmacro %}

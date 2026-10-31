@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{% block titulo %}{{ equipo.tipo | sin_dato }}{% endblock %}
+
+{% block contenido %}
+<article>
+
+  {% if equipo.estatus is baja %}
+  <p class="aviso aviso-baja">Este equipo está dado de baja.</p>
+  {% endif %}
+
+  <header class="ficha-encabezado">
+    <h1>{{ equipo.tipo | sin_dato }}</h1>
+    <p class="ficha-subtitulo">{{ equipo.marca | sin_dato }} · {{ equipo.modelo | sin_dato }}</p>
+    {{ m.estatus(equipo.estatus) }}
+  </header>
+
+  {% if equipo.id_interno is tmp %}
+  <p class="aviso aviso-tmp">
+    <strong>ID temporal.</strong> Este equipo todavía no tiene un ID interno definitivo.
+  </p>
+  {% endif %}
+
+  {# El chat 4/5 agrega aquí, solo con sesión, los botones: Editar, Registrar mantenimiento,
+     Agregar componente y QR / etiqueta. #}
+
+  <section class="seccion">
+    <h2>Datos del equipo</h2>
+    <dl class="datos">
+      <div><dt>ID interno</dt><dd>{{ m.id_interno(equipo.id_interno) }}</dd></div>
+      <div><dt>No. de serie</dt><dd>{{ equipo.serie | sin_dato }}</dd></div>
+      <div><dt>Tipo</dt><dd>{{ equipo.tipo | sin_dato }}</dd></div>
+      <div><dt>Marca</dt><dd>{{ equipo.marca | sin_dato }}</dd></div>
+      <div><dt>Modelo</dt><dd>{{ equipo.modelo | sin_dato }}</dd></div>
+      <div><dt>Área</dt><dd>{{ equipo.area | sin_dato }}</dd></div>
+      <div><dt>Ubicación</dt><dd>{{ UBICACION_FIJA }}</dd></div>
+      <div><dt>Cuenta</dt><dd>{{ CUENTA_FIJA }}</dd></div>
+      <div>
+        <dt>Último mantenimiento preventivo</dt>
+        <dd>{{ ultimo_preventivo | fecha_larga }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  {% if padre %}
+  <section class="seccion">
+    <h2>Componente de</h2>
+    <a class="enlace-equipo" href="{{ url_for('ficha', codigo=padre.codigo) }}">
+      <span>{{ m.nombre_equipo(padre) }}</span>
+      <span class="enlace-detalle">ID: {{ padre.id_interno | sin_dato }} · Serie: {{ padre.serie | sin_dato }}</span>
+    </a>
+  </section>
+  {% endif %}
+
+  {% if componentes %}
+  <section class="seccion">
+    <h2>Componentes ({{ componentes | length }})</h2>
+    <ul class="lista-enlaces">
+      {% for c in componentes %}
+      <li>
+        <a class="enlace-equipo" href="{{ url_for('ficha', codigo=c.codigo) }}">
+          <span>{{ m.nombre_equipo(c) }} {{ m.estatus(c.estatus) }}</span>
+          <span class="enlace-detalle">ID: {{ c.id_interno | sin_dato }} · Serie: {{ c.serie | sin_dato }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  {% if equipo.notas %}
+  <section class="seccion">
+    <h2>Notas</h2>
+    <p class="notas">{{ equipo.notas }}</p>
+  </section>
+  {% endif %}
+
+  <section class="seccion">
+    <h2>Historial de mantenimientos</h2>
+    {% if mantenimientos %}
+    <ol class="historial">
+      {% for mto in mantenimientos %}
+      <li class="historial-elemento">
+        <div class="historial-encabezado">
+          <span class="historial-fecha">{{ mto.fecha | fecha_larga }}</span>
+          <span class="insignia insignia-{{ mto.tipo }}">{{ mto.tipo | capitalize }}</span>
+        </div>
+        <p class="historial-descripcion">{{ mto.descripcion | sin_dato }}</p>
+        <p class="historial-meta">Realizado por: {{ mto.realizado_por | sin_dato }}
+          {% if hay_sesion %} · Registrado por: {{ mto.registrado_por | sin_dato }}{% endif %}
+        </p>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="vacio">Sin registro.</p>
+    {% endif %}
+  </section>
+
+  {% if hay_sesion %}
+  <section class="seccion seccion-interna">
+    <h2>Datos internos</h2>
+    <dl class="datos">
+      <div><dt>Número interno</dt><dd>{{ equipo.num }}</dd></div>
+      <div><dt>Código del QR</dt><dd>{{ equipo.codigo }}</dd></div>
+      <div><dt>ID original (Excel)</dt><dd>{{ equipo.id_original | sin_dato }}</dd></div>
+      <div><dt>Fila del Excel</dt><dd>{{ equipo.fila_excel | sin_dato }}</dd></div>
+      <div><dt>Dado de alta</dt><dd>{{ equipo.creado_en | fecha_larga("Sin dato") }}</dd></div>
+      <div><dt>Actualizado por</dt><dd>{{ equipo.actualizado_por | sin_dato }}</dd></div>
+    </dl>
+  </section>
+  {% endif %}
+
+  <p class="ficha-actualizada">Ficha actualizada el {{ equipo.actualizado_en | fecha_larga("Sin dato") }}.</p>
+</article>
+{% endblock %}

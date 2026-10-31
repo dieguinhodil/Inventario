@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{% block titulo %}Buscar equipo{% endblock %}
+
+{% block contenido %}
+<h1>Buscar equipo</h1>
+
+<form class="busqueda" method="get" action="{{ url_for('buscar') }}" role="search">
+  <div class="campo campo-texto">
+    <label for="q">No. de serie, ID, tipo, marca o modelo</label>
+    <input type="search" id="q" name="q" value="{{ texto }}" maxlength="{{ largo_max_busqueda }}"
+           placeholder="Ej. monitor mindray" autocomplete="off" autocapitalize="off" spellcheck="false">
+  </div>
+
+  <div class="campo">
+    <label for="area">Área</label>
+    <select id="area" name="area">
+      <option value="">Todas</option>
+      {% for opcion in areas %}
+      <option value="{{ opcion }}" {% if opcion == area %}selected{% endif %}>{{ opcion }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="estatus">Estatus</label>
+    <select id="estatus" name="estatus">
+      <option value="">Todos</option>
+      {% for opcion in lista_estatus %}
+      <option value="{{ opcion }}" {% if opcion == estatus %}selected{% endif %}>{{ opcion }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="campo campo-casilla">
+    <input type="checkbox" id="baja" name="baja" value="1" {% if incluir_baja %}checked{% endif %}>
+    <label for="baja">Incluir equipos en Baja</label>
+  </div>
+
+  <div class="acciones">
+    <button type="submit" class="boton boton-principal">Buscar</button>
+    <a class="boton boton-secundario" href="{{ url_for('buscar') }}">Limpiar</a>
+  </div>
+</form>
+
+<p class="conteo">
+  {{ equipos | length }} {{ "equipo" if equipos | length == 1 else "equipos" }}
+</p>
+
+{% if equipos %}
+<ul class="resultados">
+  {% for e in equipos %}
+  <li>
+    <a class="tarjeta-equipo" href="{{ url_for('ficha', codigo=e.codigo) }}">
+      <span class="tarjeta-encabezado">
+        <span class="tarjeta-tipo">{{ e.tipo | sin_dato }}</span>
+        {{ m.estatus(e.estatus) }}
+      </span>
+      <span class="tarjeta-linea">{{ e.marca | sin_dato }} · {{ e.modelo | sin_dato }}</span>
+      <span class="tarjeta-detalles">
+        <span><span class="etiqueta-dato">Serie:</span> {{ e.serie | sin_dato }}</span>
+        <span><span class="etiqueta-dato">ID:</span> {{ m.id_interno(e.id_interno) }}</span>
+        <span><span class="etiqueta-dato">Área:</span> {{ e.area | sin_dato }}</span>
+        {% if e.padre_num is not none %}<span class="insignia">Componente</span>{% endif %}
+      </span>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<p class="vacio">No se encontraron equipos con esa búsqueda.</p>
+{% endif %}
+{% endblock %}

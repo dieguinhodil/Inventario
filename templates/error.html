@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block contenido %}
+<section class="error">
+  <h1>{{ titulo }}</h1>
+  <p>{{ mensaje }}</p>
+  {% if hay_sesion %}
+  <p><a class="boton boton-secundario" href="{{ url_for('buscar') }}">Ir a la búsqueda</a></p>
+  {% endif %}
+</section>
+{% endblock %}
