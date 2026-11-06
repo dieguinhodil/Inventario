@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{% block titulo %}Etiqueta · {{ equipo.tipo | sin_dato }}{% endblock %}
+
+{% block contenido %}
+<p class="volver"><a href="{{ url_for('ficha', codigo=equipo.codigo) }}">← Volver a la ficha</a></p>
+
+<h1>QR / etiqueta</h1>
+<p class="ficha-subtitulo">{{ m.nombre_equipo(equipo) }}</p>
+
+{% if motivo %}
+<p class="aviso aviso-error" role="alert">{{ motivo }}</p>
+<div class="ficha-acciones">
+  <a class="boton boton-principal" href="{{ url_for('editar_equipo', num=equipo.num) }}">Editar</a>
+  <a class="boton boton-secundario" href="{{ url_for('ficha', codigo=equipo.codigo) }}">Volver a la ficha</a>
+</div>
+{% else %}
+
+<section class="seccion etiqueta-vista">
+  <div class="qr-vista">
+    <img src="{{ url_for('qr_png', num=equipo.num) }}" width="205" height="205"
+         alt="Código QR de la ficha de este equipo">
+    <p class="qr-texto">{{ equipo.id_interno }}</p>
+  </div>
+  <dl class="datos">
+    <div><dt>ID interno (debajo del QR)</dt><dd>{{ m.id_interno(equipo.id_interno) }}</dd></div>
+    <div><dt>Al escanearlo abre</dt><dd class="enlace-qr">{{ enlace }}</dd></div>
+  </dl>
+</section>
+
+<section class="seccion">
+  <h2>Descargar la etiqueta</h2>
+  <div class="ficha-acciones">
+    <a class="boton boton-principal" href="{{ url_for('etiqueta_pdf', num=equipo.num) }}">PDF de {{ tam_etiqueta }} × {{ tam_etiqueta }} cm</a>
+    <a class="boton boton-secundario" href="{{ url_for('etiqueta_pdf', num=equipo.num, hoja='carta') }}">PDF en hoja carta</a>
+  </div>
+  <ul class="instrucciones">
+    <li><strong>PDF de {{ tam_etiqueta }} × {{ tam_etiqueta }} cm:</strong> para una impresora de etiquetas.</li>
+    <li><strong>PDF en hoja carta:</strong> para una impresora normal; la etiqueta sale con una línea tenue para recortarla.</li>
+    <li>Imprime a <strong>tamaño real (100 %)</strong>, sin «Ajustar a la página». Mide la etiqueta impresa: debe medir {{ tam_etiqueta }} cm por lado.</li>
+    <li>Antes de pegarla, escanéala con el teléfono y revisa que abra la ficha de este equipo.</li>
+    <li>El QR de un equipo nunca cambia: si editas sus datos, no hay que reimprimir la etiqueta. Solo si cambia su <strong>ID interno</strong>, el texto debajo del QR queda viejo.</li>
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

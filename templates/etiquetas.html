@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{% block titulo %}Imprimir etiquetas{% endblock %}
+
+{% block contenido %}
+<p class="volver"><a href="{{ volver_busqueda }}">← Volver a la búsqueda</a></p>
+
+<h1>Imprimir etiquetas</h1>
+
+<section class="seccion">
+  <dl class="datos">
+    <div><dt>Búsqueda</dt><dd>{{ texto or "Todo el inventario" }}</dd></div>
+    <div><dt>Área</dt><dd>{{ area or "Todas" }}</dd></div>
+    <div><dt>Estatus</dt><dd>{{ estatus or "Todos (sin Baja)" }}</dd></div>
+  </dl>
+</section>
+
+{% if imprimibles %}
+<section class="seccion">
+  <h2>{{ imprimibles | length }} {{ "etiqueta" if imprimibles | length == 1 else "etiquetas" }}
+    en {{ hojas }} {{ "hoja carta" if hojas == 1 else "hojas carta" }}</h2>
+  <div class="ficha-acciones">
+    <a class="boton boton-principal" href="{{ url_for('etiquetas_pdf', q=texto or None, area=area or None, estatus=estatus or None) }}">Descargar PDF</a>
+  </div>
+  <ul class="instrucciones">
+    <li>Etiquetas de {{ tam_etiqueta }} × {{ tam_etiqueta }} cm, {{ por_hoja }} por hoja, con líneas tenues para recortarlas.
+      Van ordenadas por área y después por ID, para repartirlas más fácil.</li>
+    <li>Imprime a <strong>tamaño real (100 %)</strong>, sin «Ajustar a la página». Antes de imprimir todas,
+      imprime solo la primera hoja y mide una etiqueta: debe medir {{ tam_etiqueta }} cm por lado.</li>
+    <li>Escanea algunas con el teléfono antes de pegarlas.</li>
+    <li>Los equipos en Baja nunca llevan etiqueta.</li>
+  </ul>
+</section>
+{% else %}
+<p class="aviso aviso-info">Ningún equipo de esta búsqueda puede llevar etiqueta.</p>
+{% endif %}
+
+{% if excluidos %}
+<section class="seccion">
+  <h2>Sin etiqueta ({{ excluidos | length }})</h2>
+  <p class="texto-suave">Estos equipos no salen en el PDF. Abre su ficha para corregirlos.</p>
+  <ul class="lista-enlaces">
+    {% for equipo, motivo in excluidos %}
+    <li>
+      <a class="enlace-equipo" href="{{ url_for('ficha', codigo=equipo.codigo) }}">
+        <span>{{ m.nombre_equipo(equipo) }} {{ m.estatus(equipo.estatus) }}</span>
+        <span class="enlace-detalle">Serie: {{ equipo.serie | sin_dato }} · Área: {{ equipo.area | sin_dato }}</span>
+        <span class="enlace-detalle">{{ motivo }}</span>
+      </a>
+    </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+{% endblock %}

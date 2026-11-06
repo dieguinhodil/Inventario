@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% import "macros.html" as m %}
+
+{# Alta (es_nuevo) y edición de un equipo o componente. #}
+
+{# Junto a un campo: lo que hay guardado ahora, cuando otra persona lo cambió mientras se editaba. #}
+{% macro guardado_ahora(campo) -%}
+  {% if campo in diferencias %}
+  <p class="campo-ayuda campo-conflicto">Guardado ahora: {{ diferencias[campo] | sin_dato }}</p>
+  {% endif %}
+{%- endmacro %}
+
+{% block titulo %}{{ "Nuevo equipo" if es_nuevo else "Editar equipo" }}{% endblock %}
+
+{% block contenido %}
+{% if es_nuevo %}
+<p class="volver"><a href="{{ volver_busqueda }}">← Volver a la búsqueda</a></p>
+<h1>Nuevo equipo</h1>
+<p class="texto-suave">Al guardarlo se genera su código de QR, que ya no cambia.</p>
+{% else %}
+<p class="volver"><a href="{{ url_for('ficha', codigo=equipo.codigo) }}">← Volver a la ficha</a></p>
+<h1>Editar equipo</h1>
+<p class="texto-suave">{{ m.nombre_equipo(equipo) }}</p>
+{% endif %}
+
+{% if error %}
+<p class="aviso aviso-error" role="alert">{{ error }}</p>
+{% endif %}
+
+<form method="post" class="formulario formulario-equipo"
+      action="{{ url_for('nuevo_equipo') if es_nuevo else url_for('editar_equipo', num=equipo.num) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% if not es_nuevo %}<input type="hidden" name="version" value="{{ version }}">{% endif %}
+
+  <div class="campo">
+    <label for="tipo">Tipo <span class="obligatorio">(obligatorio)</span></label>
+    <input id="tipo" name="tipo" type="text" value="{{ valores.tipo }}" list="lista-tipos"
+           maxlength="{{ largo_max_campo }}" required>
+    {{ guardado_ahora("tipo") }}
+  </div>
+  <div class="campo">
+    <label for="estatus">Estatus</label>
+    <select id="estatus" name="estatus">
+      <option value="">Sin dato</option>
+      {% for opcion in lista_estatus %}
+      <option value="{{ opcion }}"{% if opcion == valores.estatus %} selected{% endif %}>{{ opcion }}</option>
+      {% endfor %}
+    </select>
+    {{ guardado_ahora("estatus") }}
+  </div>
+  <div class="campo">
+    <label for="marca">Marca</label>
+    <input id="marca" name="marca" type="text" value="{{ valores.marca }}" list="lista-marcas"
+           maxlength="{{ largo_max_campo }}">
+    {{ guardado_ahora("marca") }}
+  </div>
+  <div class="campo">
+    <label for="modelo">Modelo</label>
+    <input id="modelo" name="modelo" type="text" value="{{ valores.modelo }}"
+           maxlength="{{ largo_max_campo }}">
+    {{ guardado_ahora("modelo") }}
+  </div>
+  <div class="campo">
+    <label for="serie">No. de serie</label>
+    <input id="serie" name="serie" type="text" value="{{ valores.serie }}"
+           maxlength="{{ largo_max_campo }}" autocapitalize="characters" autocorrect="off" spellcheck="false">
+    {{ guardado_ahora("serie") }}
+  </div>
+  <div class="campo">
+    <label for="id_interno">ID interno</label>
+    <input id="id_interno" name="id_interno" type="text" value="{{ valores.id_interno }}"
+           maxlength="{{ largo_max_campo }}" autocapitalize="characters" autocorrect="off" spellcheck="false"
+           aria-describedby="ayuda-id">
+    <p class="campo-ayuda" id="ayuda-id">Formato: CRM GDL 00 00 00. Puede quedar vacío.</p>
+    {{ guardado_ahora("id_interno") }}
+  </div>
+  <div class="campo">
+    <label for="area">Área</label>
+    <input id="area" name="area" type="text" value="{{ valores.area }}" list="lista-areas"
+           maxlength="{{ largo_max_campo }}">
+    {{ guardado_ahora("area") }}
+  </div>
+
+  <div class="campo campo-ancho">
+    {% if num_componentes %}
+    <span class="etiqueta-campo">Componente de</span>
+    <p class="campo-fijo">Este equipo tiene {{ num_componentes }} {{ "componente" if num_componentes == 1 else "componentes" }}, así que no puede ser componente de otro equipo.</p>
+    {% else %}
+    <label for="padre_num">Componente de</label>
+    <select id="padre_num" name="padre_num" aria-describedby="ayuda-padre">
+      <option value="">Ninguno (equipo independiente)</option>
+      {% for c in candidatos %}
+      <option value="{{ c.num }}"{% if c.num | string == valores.padre_num %} selected{% endif %}>
+        {{- m.nombre_equipo(c) }} · ID: {{ c.id_interno | sin_dato }} · Serie: {{ c.serie | sin_dato -}}
+      </option>
+      {% endfor %}
+    </select>
+    <p class="campo-ayuda" id="ayuda-padre">Elige el equipo al que pertenece (por ejemplo, el monitor
+      de un cable). Solo aparecen equipos que no son componentes y no están en Baja.</p>
+    {{ guardado_ahora("padre_num") }}
+    {% endif %}
+  </div>
+
+  <div class="campo campo-ancho">
+    <label for="notas">Notas</label>
+    <textarea id="notas" name="notas" rows="4" maxlength="{{ largos.notas }}"
+              aria-describedby="ayuda-notas">{{ valores.notas }}</textarea>
+    <p class="campo-ayuda" id="ayuda-notas">Solo se ven con sesión iniciada.</p>
+    {{ guardado_ahora("notas") }}
+  </div>
+
+  <div class="acciones campo-ancho">
+    <a class="boton boton-secundario"
+       href="{{ volver_busqueda if es_nuevo else url_for('ficha', codigo=equipo.codigo) }}">Cancelar</a>
+    <button type="submit" class="boton boton-principal">{{ "Dar de alta" if es_nuevo else "Guardar cambios" }}</button>
+  </div>
+</form>
+
+<datalist id="lista-tipos">{% for t in tipos %}<option value="{{ t }}">{% endfor %}</datalist>
+<datalist id="lista-marcas">{% for t in marcas %}<option value="{{ t }}">{% endfor %}</datalist>
+<datalist id="lista-areas">{% for t in areas %}<option value="{{ t }}">{% endfor %}</datalist>
+{% endblock %}

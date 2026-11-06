@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block titulo %}Cuenta{% endblock %}
+
+{% block contenido %}
+<section class="tarjeta-formulario">
+  <h1>Cuenta</h1>
+  <p class="texto-suave">Sesión iniciada como <strong>{{ usuario_actual.nombre }}</strong>
+    (usuario <strong>{{ usuario_actual.usuario }}</strong>).</p>
+
+  <h2>Cambiar contraseña</h2>
+
+  {% if error %}
+  <p class="aviso aviso-error" role="alert">{{ error }}</p>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('cambiar_contrasena') }}" class="formulario">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    {# Campo oculto con el usuario: ayuda al gestor de contraseñas del iPhone a guardar la nueva. #}
+    <input type="text" name="usuario_oculto" value="{{ usuario_actual.usuario }}"
+           autocomplete="username" hidden>
+    <div class="campo">
+      <label for="actual">Contraseña actual</label>
+      <input id="actual" name="actual" type="password" required autocomplete="current-password">
+    </div>
+    <div class="campo">
+      <label for="nueva">Contraseña nueva</label>
+      <input id="nueva" name="nueva" type="password" required autocomplete="new-password"
+             minlength="{{ largo_min }}" maxlength="{{ largo_max }}" aria-describedby="ayuda-nueva">
+      <p class="campo-ayuda" id="ayuda-nueva">Al menos {{ largo_min }} caracteres, sin tu nombre de
+        usuario y que no uses en ningún otro lado.</p>
+    </div>
+    <div class="campo">
+      <label for="confirmacion">Escribe otra vez la contraseña nueva</label>
+      <input id="confirmacion" name="confirmacion" type="password" required autocomplete="new-password"
+             minlength="{{ largo_min }}" maxlength="{{ largo_max }}">
+    </div>
+    <div class="acciones">
+      <button type="submit" class="boton boton-principal">Cambiar contraseña</button>
+    </div>
+  </form>
+
+  <p class="nota-formulario">Al cambiarla se cierran tus sesiones abiertas en otros dispositivos.</p>
+</section>
+{% endblock %}

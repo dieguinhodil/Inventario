@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Respaldo{% endblock %}
+
+{% block contenido %}
+<p class="volver"><a href="{{ volver_busqueda }}">← Volver a la búsqueda</a></p>
+
+<h1>Respaldo</h1>
+<p>
+  La base de datos tiene <strong>{{ resumen.equipos }}</strong>
+  equipo{{ "s" if resumen.equipos != 1 }} ({{ resumen.en_baja }} en Baja) y
+  <strong>{{ resumen.mantenimientos }}</strong>
+  mantenimiento{{ "s" if resumen.mantenimientos != 1 }}.
+</p>
+<p>Descarga los dos archivos con regularidad: si algo le pasa a la cuenta de PythonAnywhere, el respaldo es la única copia.</p>
+
+<section class="seccion" aria-labelledby="titulo-excel">
+  <h2 id="titulo-excel">Excel (para consultar)</h2>
+  <p>
+    Todos los equipos (también los de Baja) y todo el historial de mantenimientos.
+    No tiene contraseñas, pero sí notas y nombres de usuario: compártelo solo con personal
+    autorizado. <strong>No sirve para restaurar la app.</strong>
+  </p>
+  <a class="boton boton-principal" href="{{ url_for('respaldo_excel') }}">Descargar Excel</a>
+</section>
+
+<section class="seccion" aria-labelledby="titulo-db">
+  <h2 id="titulo-db">Base de datos (para restaurar)</h2>
+  <p class="aviso aviso-info">
+    Este archivo contiene las contraseñas cifradas de los usuarios y las direcciones IP de los
+    intentos de entrada. Guárdalo en una carpeta privada de la jefatura; no lo compartas ni lo
+    dejes en carpetas que use todo el personal.
+  </p>
+  <p>Con este archivo se puede devolver la app al estado que tenía al momento de descargarlo.</p>
+  <a class="boton boton-secundario" href="{{ url_for('respaldo_db') }}">Descargar base de datos (.db)</a>
+</section>
+{% endblock %}
