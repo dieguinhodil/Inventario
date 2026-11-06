@@ -19,8 +19,8 @@
 | Parte | Estado |
 |---|---|
 | **Versión 1** (QR con todos los datos en el enlace + visor en GitHub Pages) | ✅ Terminada, pero **queda reemplazada** por la versión 2. **No imprimir** sus 293 etiquetas: quedarían obsoletas |
-| **Versión 2** (app web con base de datos en PythonAnywhere) | ⏳ En construcción. ✅ `db.py` (2026-10-29, versión combinada, 42 pruebas). ✅ `importar_excel.py` (2026-10-29, 30 pruebas). ✅ `app.py` + búsqueda + ficha + plantillas + estilos (2026-10-30). ✅ `auth.py` + `crear_usuario.py` + edición + alta + mantenimientos + cambio de contraseña (2026-10-31, versión combinada, 110 pruebas). ✅ `qr.py` + `etiquetas.py` (2026-11-04, 34 pruebas). ⏳ Respaldo y publicación (chat 6) |
-| Repositorio | `dieguinhodil/Inventario`. La versión 1 queda guardada con la etiqueta **`v1`** (commit `de4d04b`). GitHub Pages **desactivado**. Verificado que ni el Excel, ni CSV, ni `.db`, ni `instancia/` están ni estuvieron en el historial |
+| **Versión 2** (app web con base de datos en PythonAnywhere) | ⏳ En construcción. ✅ `db.py` (2026-10-29, versión combinada, 42 pruebas). ✅ `importar_excel.py` (2026-10-29, 30 pruebas). ✅ `app.py` + búsqueda + ficha + plantillas + estilos (2026-10-30). ✅ `auth.py` + `crear_usuario.py` + edición + alta + mantenimientos + cambio de contraseña (2026-10-31, versión combinada, 110 pruebas). ✅ `qr.py` + `etiquetas.py` (2026-11-04, 34 pruebas). ✅ `respaldo.py` + rutas de respaldo (2026-11-06, 23 pruebas; **170 pruebas en total**). ⏳ Publicación en PythonAnywhere y prueba con el iPhone (chat 6) |
+| Repositorio | `dieguinhodil/Inventario`, **público**, **recreado el 2026-11-06 con historial limpio** (un solo commit inicial de la versión 2). El repositorio anterior se borró, y con él la etiqueta `v1` en GitHub: la versión 1 y el historial anterior solo quedan en el respaldo local `Inventario_respaldo_git_2026-11-06.zip` y en la copia de la versión 1 del usuario. GitHub Pages apagado. Verificado antes del commit que no se suben `instancia/`, `.venv/`, el Excel ni archivos `.db` |
 
 ## 1. Objetivo de la versión 2
 
@@ -51,7 +51,7 @@ Una **aplicación web** para el inventario de equipo biomédico que se usa desde
 | Búsqueda | **Sin acentos ni mayúsculas** ("electrocardiografo" encuentra "Electrocardiógrafo") y **por palabras**: cada palabra debe aparecer en alguno de los campos (serie, ID, tipo, marca, modelo). "monitor mindray" encuentra los monitores Mindray |
 | Equipos en Baja | Se importan los 316 equipos, también los de Baja, porque la base de datos es el inventario completo. La búsqueda los oculta por defecto (si se filtra explícitamente por estatus "Baja", sí aparecen; los equipos **sin** estatus no se ocultan) y no se les imprime QR |
 | ID interno | Campo editable. Los `TMP-` se asignan **solo a equipos que no están en Baja** (los mismos 16 de la versión 1: `TMP-001`…`TMP-016`), con las reglas de la sección 7. Los equipos en Baja sin ID válido quedan con `id_interno` vacío (NULL) |
-| Respaldos | El plan gratuito no tiene tareas programadas, así que habrá un botón **"Descargar respaldo"** (Excel y archivo de la base de datos) que se usa con regularidad. La copia de la base de datos se hace con `sqlite3` `backup()`, no copiando el archivo |
+| Respaldos | El plan gratuito no tiene tareas programadas, así que hay una página **"Respaldo"** (solo con sesión) con **dos descargas separadas**: **Excel** (para consultar; sin contraseñas) y **archivo de la base de datos `.db`** (para restaurar; contiene los hashes de las contraseñas y las IPs de los intentos de entrada). Van separadas para poder guardar o compartir el Excel sin el `.db`. La copia del `.db` se hace con `sqlite3` `backup()` |
 | Borrado de equipos | **Los equipos nunca se borran**: se marcan como Baja. Así un QR viejo nunca abre la ficha de otro equipo |
 | Importación única | Los códigos de los QR se generan al importar. **Una vez impresas las etiquetas, no se vuelve a importar el Excel**: los códigos cambiarían y todas las etiquetas dejarían de funcionar. `importar_excel.py` se niega a correr si la base ya tiene equipos. Antes de imprimir sí se puede repetir (borrando a mano `instancia/inventario.db`) |
 | De qué base salen las etiquetas | **Solo de la base de PythonAnywhere (producción).** Cada base genera sus propios códigos de QR al importar, así que una etiqueta impresa desde la base de la laptop **no funcionaría** en la app publicada. La base de la laptop es solo para pruebas |
@@ -79,19 +79,21 @@ Fuentes: [Precios](https://www.pythonanywhere.com/pricing/) · [Funciones de cue
 - [x] **Cuenta de PythonAnywhere creada** (2026-10-29), a nombre de la Jefatura de Biomédica.
 - [x] **Usuario de la cuenta: `Bi0medic4CRM`** (con cero y cuatro) → dirección **`https://bi0medic4crm.pythonanywhere.com`**. Enlace completo de un QR: 50 caracteres → QR versión 4 (33 módulos). Ya está en `BASE_URL`. No se puede cambiar sin reimprimir todas las etiquetas.
 - [ ] **Guía breve para el personal** (se hace **al final**, con la app terminada) que explique las limitaciones: la ficha necesita internet, la app depende de PythonAnywhere (sin dominio propio), alguien debe renovar la cuenta cada mes y descargar respaldos.
-- [ ] **Vencimiento mensual de la app**: confirmar cómo funciona; mientras tanto, recordatorio mensual para entrar a la cuenta.
+- [ ] **Vencimiento mensual de la app** (investigado por el chat 6 el 2026-11-06): según la ayuda de PythonAnywhere, el plan gratuito tiene "1 month expiry". Se extiende entrando a la pestaña **Web** y pulsando **"Run until 1 month from today"** (antes eran 3 meses; cambió en enero de 2026). **No se encontró evidencia de que las visitas a la app lo extiendan.** Falta confirmar el botón y la fecha en pantalla al publicar. Mientras tanto: recordatorio mensual en el calendario de la jefatura.
 - [ ] **Avisos para no dejar vencer la app** (cuando se confirme cómo funciona el vencimiento):
       un aviso dentro de la app, visible solo con sesión, que diga cuántos días faltan para renovar en PythonAnywhere
       y cuántos días lleva sin descargarse un respaldo. Limitaciones del plan gratuito: la app no puede mandar correos
       ni avisos programados (no hay tareas programadas y la salida a internet está restringida), y el aviso solo se ve
       si alguien entra a la app. Por eso se complementa con un **recordatorio de calendario** de la jefatura.
+      Para mostrar "días sin descargar respaldo" hay que **guardar la fecha de cada descarga** (tabla o campo nuevo en la base). El chat 6 **no** lo incluye; se decide en el chat 7.
 - [ ] **Fechas de mantenimiento de la jefa**: capturarlas en el Excel **antes** de la importación definitiva (la que se hace justo antes de imprimir), o después en la app. Una vez impresas las etiquetas ya no se puede reimportar.
 - [x] **Bloqueo por IP compartida** (2026-10-31): usuario con `MAX_INTENTOS = 5`, IP con `MAX_INTENTOS_IP = 20` en `db.minutos_bloqueado`.
 - [x] **Cambiar contraseña** (2026-10-31): pantalla `/contrasena` ("Cuenta") y `crear_usuario.py --cambiar`.
 - [x] **Notas y "Realizado por" solo con sesión** (2026-10-31).
 - [x] **Logo y nombre de la cabecera como enlace a la búsqueda, solo con sesión** (2026-10-31).
 - [ ] **Logo de la cabecera:** confirmar con la jefatura si se puede usar la cruz roja dibujada con CSS o si hay que pedir el logotipo oficial de Cruz Roja Mexicana. El uso del emblema está regulado.
-- [ ] **`requirements.txt`**: ningún chat lo tiene asignado. Se genera con `pip freeze > requirements.txt` en la laptop y se revisa en el chat 6 antes de publicar. Mínimo: `flask`, `flask-wtf`, `openpyxl`, `qrcode[pil]`, `reportlab` (más `tzdata` si alguien usa Windows).
+- [x] **`requirements.txt`** (chat 6, 2026-11-06), con versiones exactas: `Flask 3.1.3`, `Flask-WTF 1.3.0`, `openpyxl 3.1.5`, `qrcode[pil] 8.2`, `pillow 12.3.0`, `reportlab 5.0.1`. Verificado que se instala en Python 3.13. Sin `zxing-cpp` ni `pypdfium2`.
+- [x] **Versión de Python:** la laptop tiene **3.14.6**; PythonAnywhere ofrece hasta **3.13** (imagen "innit"), así que **se publica con 3.13**. Regla: el código **no debe usar funciones exclusivas de Python 3.14** (ver sección 9).
 - [x] **Usuarios creados en la laptop** (confirmado el 2026-11-06).
 - [ ] **Crear los usuarios en PythonAnywhere** (chat 6), en una consola Bash: `python3 crear_usuario.py jefatura "Jefatura de Biomédica"` y `python3 crear_usuario.py diego "Diego"`. Los de la laptop no se suben: cada lugar tiene su propia base de datos.
 - [x] **Pruebas corridas en la laptop con los archivos reales** (confirmado por el usuario el 2026-11-06).
@@ -181,6 +183,7 @@ Fuentes: [Precios](https://www.pythonanywhere.com/pricing/) · [Funciones de cue
 | `registrar_intento(conexion, usuario, ip, exitoso)`, `minutos_bloqueado(conexion, usuario, ip)` | Límite de intentos: usuario con `MAX_INTENTOS` (5), IP con `MAX_INTENTOS_IP` (20) (cambiado en el chat 4) |
 | `respaldar_db(conexion, ruta_destino)` | Respaldo con `backup()`. Escribe en un archivo: `respaldo.py` debe usar un archivo temporal para mandarlo como descarga |
 | `ahora()`, `hoy()`, `normalizar_texto()`, `ErrorDatos` | Utilidades |
+| `es_baja(estatus)` | **Única regla de "está en Baja"** (sin acentos ni mayúsculas, con `config.ESTATUS_EXCLUIDOS`). La usan `app.py` (prueba `is baja` de las plantillas), `etiquetas.py`, `respaldo.py` y `buscar_equipos` (agregada en el chat 6) |
 
 - **Sin Flask:** `db.py` no depende de Flask. `app.py` abre una conexión por petición (`flask.g`) con `db.conectar()` y la cierra en `teardown_appcontext`.
 - **Transacciones:** cada función que escribe guarda sus cambios sola. `importar_excel.py` debe envolver todo en `with db.transaccion(conexion):`, para que se guarden los 316 equipos o ninguno.
@@ -277,7 +280,7 @@ Fuentes: [Precios](https://www.pythonanywhere.com/pricing/) · [Funciones de cue
 - Se pueden **registrar mantenimientos en equipos en Baja**.
 
 **Pantallas:**
-- **Cabecera con sesión:** Buscar · Nuevo equipo · Cuenta · Salir (en el iPhone dice "Nuevo" y la navegación baja a una segunda línea). "Salir" es un formulario POST con token CSRF.
+- **Cabecera con sesión:** Buscar · Nuevo equipo · Respaldo · Cuenta · Salir (en el iPhone dice "Nuevo" y el menú ocupa dos renglones). "Salir" es un formulario POST con token CSRF.
 - **Mensajes después de guardar** (en `base.html`): "Cambios guardados", "Equipo dado de alta", "Mantenimiento registrado", "Sesión cerrada", etc.
 - **Registrar mantenimiento** no tiene pantalla propia: es un formulario **dentro de la ficha** (solo con sesión), que se despliega sin JavaScript (`<details>`). Si hay error, la ficha se vuelve a mostrar con el formulario abierto y lo capturado.
 
@@ -292,20 +295,20 @@ Fuentes: [Precios](https://www.pythonanywhere.com/pricing/) · [Funciones de cue
 - **Entorno virtual** en PythonAnywhere con la misma versión de Python que la laptop, e instalar `requirements.txt` (revisarlo antes: sin `zxing-cpp` ni `pypdfium2`).
 - **Después de cada `git pull`**, recargar la app desde la pestaña Web. `git pull` no toca `instancia/` (está en `.gitignore`), pero conviene descargar un respaldo antes de cada actualización.
 - **Revisar el vencimiento mensual** en la pestaña Web y anotar cómo funciona (sección 3).
+- **Correr las pruebas en la consola de PythonAnywhere** (Python 3.13) una vez instalado `requirements.txt`: es la forma de confirmar que nada depende de Python 3.14, que es lo que tiene la laptop.
 - **Prueba final con un iPhone real:** escanear una etiqueta impresa desde la app publicada, entrar, editar y registrar un mantenimiento.
 
 **Código muerto eliminado (regla de la sección 9):** `from functools import wraps`, `requiere_sesion`/`hay_sesion` provisionales, `SESION_PROVISIONAL` y el candado, la variable `sesion_provisional`, el aviso "Modo de desarrollo" en `base.html`, la regla `.aviso-desarrollo` en `estilos.css`, y la prueba `test_produccion_sin_auth_no_arranca` (reemplazada por `test_produccion_arranca`).
 
 ### `qr.py` y `etiquetas.py` ✅ (chat 5, 2026-11-04, 34 pruebas en `pruebas_etiquetas.py`)
 
-**Contrato de `qr.py`:**
+**Contrato de `qr.py`** (corregido el 2026-11-06: `info_qr()` se quitó en la auditoría del chat 5 y `png()` ya no recibe parámetros de tamaño):
 
 | Función | Uso |
 |---|---|
 | `enlace_equipo(codigo) -> str` | `BASE_URL + RUTA_FICHA + codigo` (valida el código; acepta mayúsculas) |
 | `matriz(enlace) -> list[list[bool]]` | Módulos del QR sin zona blanca (la usa `etiquetas.py`) |
-| `info_qr(enlace) -> dict` | `{"version": 4, "modulos": 33}` |
-| `png(enlace, modulo_px=10, borde=4) -> bytes` | PNG en memoria, 1 bit, con 4 módulos de zona blanca (410 × 410 px) |
+| `png(enlace) -> bytes` | PNG en memoria, 1 bit, con 4 módulos de zona blanca y 10 px por módulo, fijos (410 × 410 px) |
 
 **Contrato de `etiquetas.py`:**
 
@@ -327,6 +330,28 @@ Fuentes: [Precios](https://www.pythonanywhere.com/pricing/) · [Funciones de cue
 - 3 pruebas de lectura del QR solo corren con `pip install zxing-cpp pypdfium2` (la app no los necesita).
 - `app.py`: nueva función `filtros_busqueda()`, que usan la búsqueda y las etiquetas.
 
+### `respaldo.py` ✅ (chat 6, programado el 2026-11-06, 23 pruebas en `pruebas_respaldo.py`)
+
+**Probado con la base real de la laptop** (317 equipos, 149 mantenimientos): Excel de 43 KB, sin fórmulas ni contraseñas; la copia `.db` es idéntica a la original. `app.py`: `_archivo()` acepta `adjunto=True` para las descargas (las etiquetas siguen abriéndose en el navegador).
+
+Sin Flask (igual que `db.py`): solo genera los archivos; las rutas las registra `app.py`.
+
+| Función | Uso |
+|---|---|
+| `resumen(conexion) -> dict` | Conteos para la página: equipos (total y en Baja) y mantenimientos |
+| `excel(conexion, usuario) -> bytes` | Excel en memoria (`openpyxl`) |
+| `copia_db(conexion) -> bytes` | `db.respaldar_db` a un archivo temporal, que se lee y se borra |
+| `nombre_archivo(extension) -> str` | `respaldo_inventario_2026-11-06_1045.xlsx` / `.db` (hora de Ciudad de México) |
+
+**Contenido del Excel:**
+- Hoja **"Equipos"**: todos los equipos de la base, **también los de Baja**, ordenados por `num`. Columnas: num, código del QR, enlace del QR, ID interno, ID original, tipo, marca, modelo, serie, área, estatus, núm. del padre, ID del padre, último preventivo, notas, fila del Excel, creado en, actualizado en, actualizado por.
+- Hoja **"Mantenimientos"**: todos, con el ID interno y el código de su equipo.
+- Hoja **"Información"**: fecha y hora del respaldo, quién lo descargó, conteos y un aviso de que el Excel no sirve para restaurar (para eso es el `.db`).
+- **No incluye** las tablas `usuarios` ni `intentos_entrada`.
+- Todo el texto se escribe **como texto, nunca como fórmula** (una nota que empiece con `=` no se ejecuta al abrir el Excel). Se quitan los caracteres de control (openpyxl falla con ellos). Las fechas quedan como texto `AAAA-MM-DD`, igual que en la base.
+- Encabezado fijo y filtros en cada hoja.
+- ⚠️ El Excel **no tiene contraseñas, pero sí datos internos** (notas, nombres de usuario, "Realizado por"). Compartirlo solo con personal autorizado.
+
 ## 5. Pantallas y rutas (Flask)
 
 | Ruta | Quién | Qué hace |
@@ -344,7 +369,10 @@ Fuentes: [Precios](https://www.pythonanywhere.com/pricing/) · [Funciones de cue
 | `GET /etiquetas` (`etiquetas`) | Con sesión | **Resumen antes de imprimir:** cuántas etiquetas, cuántas hojas y qué equipos quedan fuera y por qué (agregada en el chat 5) |
 | `GET /etiquetas.pdf` (`etiquetas_pdf`) | Con sesión | PDF en hoja carta con los filtros `q`, `area`, `estatus` de la búsqueda |
 | | | Todas las rutas de etiquetas abren el archivo en el navegador (`inline`) con `Cache-Control: private, no-store`. Equipo en Baja o sin ID → página de aviso con código 409. Botón "QR / etiqueta" en la ficha (no en Baja) y botón "Imprimir etiquetas" junto al conteo de la búsqueda |
-| `GET /respaldo` | Con sesión | Descarga Excel con todos los equipos y mantenimientos + archivo `.db` |
+| `GET /respaldo` (`respaldo`) | Con sesión | Página con conteos, aviso sobre el `.db` y dos botones |
+| `GET /respaldo.xlsx` (`respaldo_excel`) | Con sesión | Descarga el Excel |
+| `GET /respaldo.db` (`respaldo_db`) | Con sesión | Descarga la copia de la base de datos |
+| | | Las dos descargas van como **archivo adjunto** (`as_attachment`, no `inline` como las etiquetas), con `Cache-Control: private, no-store`. Enlace **"Respaldo"** en la cabecera (marcador de `base.html`, entre "Nuevo equipo" y "Cuenta") |
 
 **Reglas de presentación** (heredadas del visor de la versión 1):
 - Campo vacío → "Sin dato". Sin mantenimiento preventivo → "Sin registro". `S/D`, `N/A`, `NA`, `-`, `--` se muestran como "Sin dato".
@@ -381,12 +409,14 @@ inventario/
 ├── pruebas_sesion.py    ← pruebas de auth.py (entrar, bloqueo, contraseña)
 ├── pruebas_edicion.py   ← pruebas de edición, alta y mantenimientos
 ├── pruebas_etiquetas.py ← pruebas de qr.py, etiquetas.py y sus rutas
+├── pruebas_respaldo.py  ← pruebas de respaldo.py y sus rutas
 ├── modulos/             ← reutilizados de la versión 1 (solo los usa importar_excel.py)
 │   ├── lector_excel.py
 │   ├── limpieza.py
 │   └── ids.py
 ├── templates/           ← base.html, macros.html, buscar.html, ficha.html, error.html,
-│                           entrar.html, editar.html, contrasena.html
+│                           entrar.html, editar.html, contrasena.html, etiqueta.html,
+│                           etiquetas.html, respaldo.html
 ├── static/
 │   ├── estilos.css
 │   └── tema.js          ← interruptor claro/oscuro (único JavaScript de la app; archivo aparte por la CSP)
@@ -401,8 +431,8 @@ inventario/
 |---|---|
 | `lector_excel.py`, `limpieza.py` (incluida `clave()`), `ids.py` | Se reutilizan tal cual en `importar_excel.py` |
 | `config.py` (normalización de marcas y tipos, `FORMATO_ID`, `PREFIJO_TMP`, `SIN_ID`) | Se conserva y se le agregan las constantes nuevas |
-| `generador_qr.py` | Reemplazado por `qr.py` (chat 5). Ya no se usa; está en la etiqueta `v1` de git |
-| `pdf_etiquetas.py` | Reemplazado por `etiquetas.py` (chat 5), que dibuja el QR vectorial. Ya no se usa; está en la etiqueta `v1` de git |
+| `generador_qr.py` | Reemplazado por `qr.py` (chat 5). Ya no se usa; está en el respaldo local de la versión 1 |
+| `pdf_etiquetas.py` | Reemplazado por `etiquetas.py` (chat 5), que dibuja el QR vectorial. Ya no se usa; está en el respaldo local de la versión 1 |
 | `docs/visor.js`, `estilos.css` | Sus reglas de presentación y estilo pasan a `ficha.html` y `static/estilos.css` |
 | `filtros.py` | Lo reemplazan las consultas SQL de `db.py` |
 | `enlaces.py`, `main.py`, visor de GitHub Pages | Ya no se usan |
@@ -438,7 +468,7 @@ El archivo completo lo tiene el usuario. Resumen:
 
 ## 9. Reglas para todos los chats
 
-- Python 3.10+. Dependencias: `flask`, `flask-wtf` (protección CSRF en formularios), `openpyxl`, `qrcode[pil]`, `reportlab`.
+- **Python:** el código debe funcionar en **3.13** (versión de PythonAnywhere), aunque la laptop tenga 3.14: no usar funciones exclusivas de 3.14. Dependencias con versiones exactas en `requirements.txt`: `Flask 3.1.3`, `Flask-WTF 1.3.0`, `openpyxl 3.1.5`, `qrcode[pil] 8.2`, `pillow 12.3.0`, `reportlab 5.0.1`.
   Opcionales, **solo para pruebas** (no van en `requirements.txt` de PythonAnywhere): `zxing-cpp` y `pypdfium2`, para leer de vuelta los QR de los PDF.
   Si alguien desarrolla en **Windows**, agregar `tzdata` (lo necesita `zoneinfo`); en macOS y PythonAnywhere no hace falta.
 - Nombres de funciones, variables, rutas y tablas en español, sin acentos.
@@ -454,7 +484,7 @@ El archivo completo lo tiene el usuario. Resumen:
   - `.gitignore` con `instancia/`, el Excel y los `.db` **antes del primer commit** (el repositorio de GitHub puede ser público).
 - **Nunca** compartir ni subir `instancia/` (base de datos y clave secreta) ni el Excel.
 - Todo debe poder probarse primero en la laptop del usuario (`flask --app app run`) antes de subirlo a PythonAnywhere.
-- **Pruebas:** antes de subir cambios a PythonAnywhere, correr en la laptop `python3 -m unittest pruebas_app pruebas_sesion pruebas_edicion pruebas_etiquetas` y también el archivo de pruebas de `db.py`. Cada chat que agregue rutas agrega sus pruebas a uno de esos archivos o a uno nuevo `pruebas_<parte>.py` (y lo suma a este comando).
+- **Pruebas:** antes de subir cambios a PythonAnywhere, correr en la laptop `python3 -m unittest pruebas_app pruebas_sesion pruebas_edicion pruebas_etiquetas pruebas_respaldo` y también el archivo de pruebas de `db.py`. En la laptop está instalado `zxing-cpp` pero no `pypdfium2`, así que las 3 pruebas de lectura de QR de `pruebas_etiquetas.py` salen como *skipped*: no es un error. Cada chat que agregue rutas agrega sus pruebas a uno de esos archivos o a uno nuevo `pruebas_<parte>.py` (y lo suma a este comando).
 - **Cabeceras de seguridad (desde el chat 3):** `app.py` manda en todas las respuestas `Content-Security-Policy`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` y `Referrer-Policy: same-origin`. Por eso:
   - **Nada de `<script>` ni `style="..."` dentro del HTML**: el navegador los bloquea.
   - El JavaScript va en archivos `static/*.js` y los estilos en `static/estilos.css`.
@@ -472,5 +502,5 @@ El archivo completo lo tiene el usuario. Resumen:
 3. ✅ `app.py` + búsqueda + ficha (solo lectura) + `templates/` (base, macros, buscar, ficha, error) + `static/estilos.css` + `pruebas_app.py` (versión combinada, probada en WebKit/iPhone y Chromium)
 4. ✅ `auth.py` + `crear_usuario.py` + edición + registro de mantenimientos + alta de equipos y componentes + cambio de contraseña (versión combinada, 110 pruebas: `pruebas_app` + `pruebas_sesion` + `pruebas_edicion`; probada en WebKit/iPhone y Chromium, claro y oscuro). Incluye las 5 tareas que le dejaron los chats anteriores
 5. ✅ `qr.py` + `etiquetas.py` + rutas de QR y etiquetas + `pruebas_etiquetas.py` (34 pruebas; 2026-11-04). También movió `HORAS_SESION` a `config.py`
-6. ⏳ `respaldo.py` + publicación en PythonAnywhere + prueba con el iPhone (ver "Para el chat 6" en la sección 4)
+6. ✅ `respaldo.py` + rutas + `templates/respaldo.html` + `pruebas_respaldo.py` (23 pruebas; 170 en total) · ⏳ **publicación en PythonAnywhere y prueba con el iPhone** (ver "Para el chat 6" en la sección 4)
 7. ⏳ Cierre: avisos para no dejar vencer la app (cuando se sepa cómo funciona el vencimiento), detalles menores pendientes de la sección 3 y **guía breve para el personal**
