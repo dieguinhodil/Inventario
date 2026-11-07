@@ -51,6 +51,11 @@ class BaseApp(unittest.TestCase):
 
     def setUp(self):
         self.carpeta = tempfile.TemporaryDirectory()
+        # La carpeta se borra con addCleanup, no en tearDown: los cleanups corren en orden
+        # inverso y DESPUÉS de tearDown, así que esta, registrada primero, se borra al final,
+        # cuando ya se cerraron las conexiones de self.conexion(). En PythonAnywhere no se
+        # puede borrar una carpeta con la base todavía abierta ("Directory not empty").
+        self.addCleanup(self.carpeta.cleanup)
         carpeta = Path(self.carpeta.name)
         self.ruta_db = carpeta / "prueba.db"
         conexion = db.conectar(self.ruta_db)
@@ -76,9 +81,6 @@ class BaseApp(unittest.TestCase):
         conexion = db.conectar(self.ruta_db)
         self.addCleanup(conexion.close)
         return conexion
-
-    def tearDown(self):
-        self.carpeta.cleanup()
 
     def cargar_datos(self, conexion):
         nuevo = lambda **datos: db.insertar_equipo(conexion, datos, "prueba")
